@@ -1,0 +1,8 @@
+Variable,Columns,Definition,Units,Relevant Details
+location ID,1,Sites 1-55,Factor (Nominal),Garden sites were labeled 1-55 
+Timestamp,2,date and time data were entered by citizen scientist,,Timestamp month/day/year hours:mins
+Year,3,Year of sampling ,2018 or 2019,
+Flower Counts,Columns 4-34 & 98-113,Number of flowers counted per plant,Counts (Integers),Each column contains labling details indicating the vegtable variety and what treatment the observation came from: Control (allowed pollinators in) and Covered (excluded pollinators)
+Fruit Counts and weights,Columns 35-97 & 114-145,Number of fruits counted per plant and their total weight in grams ,Counts (Integers) and Weight (grams),
+Bee_abundance,146,Summary of total bees collected at the site,Counts (Integers),For details on bee diversity and abundance see the abundance.csv dataset
+Bee_diversity,147,Summary of total bee species collected at the site,Counts (Integers) ,For details on bee diversity and abundance see the abundance.csv dataset

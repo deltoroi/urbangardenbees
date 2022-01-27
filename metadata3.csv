@@ -1,0 +1,9 @@
+Variable,Definition
+location.ID,Site location identifier
+Year,Year sampled
+Vegtable,One of nine vegtable varieties analyzed
+treatment,Control vs. Exclosure 
+Fruit_total,Total number of vegetables of a given fruit produced at each site
+Fruit_weight,Sum of the mass in grams of all fruits of a vegtable variety produced at each site
+Bee.Diversity,Count of Bee Richness at each site 
+Bee Abundance,Count of total number of bees collected at each site 

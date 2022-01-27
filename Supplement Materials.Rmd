@@ -1,0 +1,1017 @@
+---
+title: "Quantifying the urban garden pollination ecosystem service- Detailed Analyses"
+author: "Del Toro et al."
+date: "5/19/2020"
+output: 
+  pdf_document:
+    toc: true
+---
+#Prep work and preliminary analyses 
+
+## Load Datasets, metadata and Packages
+```{r, message=FALSE, warning=FALSE}
+#set a working directory *Change to your own working directory as needed 
+setwd("/Users/israel/Desktop/Ecology Paper")
+
+# Required Pacakages "tidyverse"
+library (tidyverse)
+library (pander)
+
+# Load the citizen science vegtable datasets
+raw.data<- read.csv ("Complete Dataset_01_17_20.csv", header = TRUE)
+metadata1<-read.csv ("metadata1.csv", header=TRUE); pander (metadata1, split.cell = 80, split.table = Inf)
+
+# Load the abundance and diversity matrix 
+abund.matrix<- read.csv ("abundances.csv")
+metadata2<- read.csv ("metadata2.csv"); pander (metadata2, split.cell = 80, split.table = Inf)
+
+#Abundance and Richness Summaries 
+abund.data<- read.csv ("BeeAbundance_Richness_summary.csv")
+metadata3<- read.csv ("metadata3.csv"); pander (metadata3, split.cell = 80, split.table = Inf)
+
+#Bee species list
+bee.diversity<- read.csv ("bee_summary.csv")
+pander (bee.diversity, split.cell = 80, split.table = Inf)
+
+#organize the dataframe as a tidy table 
+x=raw.data %>%
+select (1,3:33, 98:113) %>%
+mutate_if(is.numeric, replace_na, 0)  %>%
+pivot_longer(cols = -c(location.ID, Year), names_to ='plant', values_to = 'count') %>%
+filter(str_detect(plant, 'Control')) %>%
+group_by(location.ID, Year, plant) %>%
+summarise (Flower_total=sum (count))  %>%
+separate(plant, c("plant", "treatment"), "_", extra = "merge")
+
+y=raw.data %>%
+select (1,3:33, 98:113) %>%
+mutate_if(is.numeric, replace_na, 0)  %>%
+pivot_longer(cols = -c(location.ID, Year), names_to ='plant',
+values_to = 'count') %>%
+filter(str_detect(plant, 'Covered')) %>%
+group_by(location.ID, Year, plant) %>%
+summarise (Flower_total=sum (count)) %>%
+separate(plant, c("plant", "treatment"), "_", extra = "merge")
+summary (y)
+
+df.summary<- rbind (x,y)
+
+df.summary$treatment<- as.factor (df.summary$treatment)
+levels (df.summary$treatment)
+df.summary$plant<-as.factor (df.summary$plant)
+df.summary<- as.data.frame(df.summary)
+```
+# Results 
+
+## t-test comparison of floral production 
+```{r}
+#paired t-tests
+Anaheim<-filter (df.summary, str_detect(plant, 'Anaheim'))
+ t.test(Flower_total~ treatment, paired=T, data=Anaheim )
+
+Bell<-filter (df.summary, str_detect(plant, 'Bell'))
+  t.test(Flower_total~ treatment, paired=T, data=Bell )  
+
+BigBoy<-filter (df.summary, str_detect(plant, 'Big.Boy'))
+ t.test(Flower_total~ treatment, paired=T, data=BigBoy ) #SIGNIFICANT
+  
+Butternut<-filter (df.summary, str_detect(plant, 'Butternut'))
+  t.test(Flower_total~ treatment, paired=T, data=Butternut )   
+  
+Caballero<- filter (df.summary, str_detect(plant, 'Caballero'))
+  t.test(Flower_total~ treatment, paired=T, data=Caballero )
+  
+CAWonder<- filter (df.summary, str_detect(plant, 'CA.Wonder'))
+  t.test(Flower_total~ treatment, paired=T, data=Caballero )
+  
+Habanero<- filter (df.summary, str_detect(plant, 'Habanero'))
+  t.test(Flower_total~ treatment, paired=T, data=Habanero )
+  
+Cantaloupe<- filter (df.summary, str_detect(plant, 'Cantaloupe'))
+   t.test(Flower_total~ treatment, paired=T, data=Cantaloupe )
+
+Cantaloupe<- filter (df.summary, str_detect(plant, 'Cantaloupe'))
+  t.test(Flower_total~ treatment, paired=T, data=Cantaloupe )
+  
+CherryTY<- filter (df.summary, str_detect(plant, 'TY'))
+   t.test(Flower_total~ treatment, paired=T, data=CherryTY )
+
+Cherry<-filter (df.summary, str_detect(plant, 'Cherry.Tomato.Flowers'))
+  t.test(Flower_total~ treatment, paired=T, data=Cherry )
+
+Crook<- filter (df.summary, str_detect(plant, 'Crook'))
+  t.test(Flower_total~ treatment, paired=T, data=Crook )
+
+Eggplant<- filter (df.summary, str_detect(plant, 'Eggplant'))
+   t.test(Flower_total~ treatment, paired=T, data=Eggplant )
+
+Hot.Chili<-filter (df.summary, str_detect(plant, 'Hot'))
+  t.test(Flower_total~ treatment, paired=T, data=Hot.Chili )
+
+Maskato<-filter (df.summary, str_detect(plant, 'Maskato'))
+   t.test(Flower_total~ treatment, paired=T, data=Maskato )
+
+PeasBeans<-filter (df.summary, str_detect(plant, 'Peas'))
+  t.test(Flower_total~ treatment, paired=T, data=PeasBeans ) #SIGNIFICANT
+  
+Pickling<- filter (df.summary, str_detect(plant, 'Pickling'))
+  t.test(Flower_total~ treatment, paired=T, data=Pickling )
+
+Pumpkins<- filter (df.summary, str_detect(plant, 'Pumpkin'))
+   t.test(Flower_total~ treatment, paired=T, data=Pumpkins ) 
+  
+Roma<-filter (df.summary, str_detect(plant, 'Roma'))
+  t.test(Flower_total~ treatment, paired=T, data=Roma ) 
+  
+Salad<-filter (df.summary, str_detect(plant, 'Salad'))
+  t.test(Flower_total~ treatment, paired=T, data=Salad )
+
+Snap<-filter (df.summary, str_detect(plant, 'Snap'))
+  t.test(Flower_total~ treatment, paired=T, data=Snap )
+  
+String<-filter (df.summary, str_detect(plant, 'String'))
+  t.test(Flower_total~ treatment, paired=T, data=String )
+
+SugarBaby<-filter (df.summary, str_detect(plant, 'Sugar'))
+  t.test(Flower_total~ treatment, paired=T, data=SugarBaby )
+
+Tabasco<-filter (df.summary, str_detect(plant, 'Tabasco'))
+  t.test(Flower_total~ treatment, paired=T, data=Tabasco )
+
+Garden<- filter (df.summary, str_detect(plant, 'Garden'))
+   t.test(Flower_total~ treatment, paired=T, data=Garden )
+```
+
+## t-test comparison of fruit production 
+```{r}
+#Prepare dataframe for analysis 
+a.2=raw.data %>% mutate_if(is.numeric, replace_na, 0)  %>% 
+  select (1,3, 34:97, 114:145) %>%
+pivot_longer(cols = -c(location.ID, Year), names_to ='plant', values_to = 'count') %>%
+  mutate_if(is.numeric, replace_na, 0) %>% 
+  filter(str_detect(plant, "Count")) %>%
+  filter(str_detect(plant, "_Control")) %>%
+  group_by(location.ID, Year, plant) %>%
+  summarise (Fruit_total=sum (count))  %>%
+  separate(plant, c("plant", "treatment"), "_", extra = "merge")
+
+b.2=raw.data %>% mutate_if(is.numeric, replace_na, 0)  %>% 
+  select (1,3, 34:97, 114:145) %>%
+pivot_longer(cols = -c(location.ID, Year), names_to ='plant', values_to = 'count') %>%
+  mutate_if(is.numeric, replace_na, 0) %>% 
+  filter(str_detect(plant, "Count")) %>%
+  filter(str_detect(plant, "_Covered")) %>%
+  group_by(location.ID, Year, plant) %>%
+  summarise (Fruit_total=sum (count))  %>%
+  separate(plant, c("plant", "treatment"), "_", extra = "merge")
+
+df.summary<- rbind (a.2,b.2)
+
+df.summary$treatment<- as.factor (df.summary$treatment)
+levels (df.summary$treatment)
+df.summary$plant<-as.factor (df.summary$plant)
+df.summary<- as.data.frame(df.summary)
+group.colors<- c("#998ec3", "#f1a340")
+df.counts<- df.summary %>% summarize (count.total=sum(Fruit_total))
+```
+
+### Anaheim Peppers
+```{r}
+#paired t-tests
+Anaheim<-filter (df.summary, str_detect(plant, 'Anaheim')) %>% filter ( str_detect(Year, '2019') )%>% #filter out the 2019 observations 
+  group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0) #omit observations where both the control and covered values= 0
+
+Anaheim.summary<- Anaheim %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) #create a summary that shows the mean value 
+
+t.test(Fruit_total~ treatment, paired=T, data=Anaheim )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Anaheim )
+
+Anaheim.plot.a= ggplot (Anaheim, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Anaheim$location.ID, color="lightgrey") + 
+  ggtitle("p<0.001") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site") + xlab("") +
+geom_point (data=Anaheim.summary, aes (x=treatment, y=mean), color="black", size=5) +
+  scale_color_manual(values=group.colors)
+
+Anaheim.plot.a
+
+```
+
+### Bell Peppers not completed due to low observations
+
+### Big Boy Tomato 
+```{r}
+#paired t-tests
+BigBoy<-filter (df.summary, str_detect(plant, 'Big')) %>% filter ( str_detect(Year, '2018')) %>% 
+  #filter out the 2019 observations
+    group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0) #omit observations where both the control and covered values= 0
+
+BigBoy.summary<- BigBoy %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) 
+
+t.test(Fruit_total~ treatment, paired=T, data=BigBoy )
+wilcox.test (Fruit_total~ treatment, paired=T, data=BigBoy )
+  
+BigBoy.plot= ggplot (BigBoy, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=BigBoy$location.ID, color="lightgrey") + 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site") +
+  geom_point (data=BigBoy.summary, aes (x=treatment, y=mean), color="black", size=5) + 
+  scale_color_manual(values=group.colors)
+BigBoy.plot
+```
+
+### Butternut Squash
+```{r}
+#paired t-tests
+Butternut<-filter (df.summary, str_detect(plant, 'Butternut')) %>% filter ( str_detect(Year, '2018')) %>%     group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0) #filter out the 2019 observations and omit 0 observations
+
+Butternut.summary<- Butternut %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; Butternut.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Butternut )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Butternut )
+  
+Butternut.plot= ggplot (Butternut, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Butternut$location.ID, color="lightgrey") + 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site") +
+  geom_point (data=Butternut.summary, aes (x=treatment, y=mean), color="black", size=5) + 
+  scale_color_manual(values=group.colors)
+Butternut.plot
+```
+
+### Caballero / Habanero Peppers
+```{r}
+#paired t-tests
+Caballero<-filter (df.summary, str_detect(plant, 'Caballero')) %>% filter ( str_detect(Year, '2019')) %>% 
+  #filter out the 2019 observations
+      group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+
+Caballero.summary<- Caballero %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Caballero.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Caballero )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Caballero )
+  
+Caballero.plot= ggplot (Caballero, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Caballero$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.01") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Caballero.summary, aes (x=treatment, y=mean), color="black", size=5) + 
+  scale_color_manual(values=group.colors)
+Caballero.plot
+
+```
+
+### CA Wonder Pepper
+```{r}
+#paired t-tests
+CABell<-filter (df.summary, str_detect(plant, 'CA.Wonder.')) %>% 
+  filter ( str_detect(Year, '2019')) %>% 
+  #filter out the 2019 observations
+  group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+# write.csv(CABell, "CABell.csv")
+
+CABell.summary<- CABell %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); CABell.summary
+
+t.test(Fruit_total ~ treatment, paired=T, data=CABell)
+wilcox.test (Fruit_total ~ treatment, paired=T, data=CABell )
+  
+CABell.plot.a= ggplot (CABell, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=CABell$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.02") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+ xlab("")+
+geom_point (data=CABell.summary, aes (x=treatment, y=mean), color="black", size=5) +
+  scale_color_manual(values=group.colors)
+CABell.plot.a
+```
+
+### Canteloupe not completed due to insufficient data 
+
+### Cherry Tomatoes Red 
+```{r}
+#paired t-tests
+Cherry<-filter (df.summary, str_detect(plant, 'Cherry.Tomato.Count')) %>% filter ( str_detect(Year, '2018')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+Cherry.summary<- Cherry %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; Cherry.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Cherry )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Cherry )
+  
+Cherry.plot.a= ggplot (Cherry, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Cherry$location.ID, color="lightgrey")+ 
+  ggtitle("p<0.01") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+ scale_color_manual(values = group.colors) +
+geom_point (data=Cherry.summary, aes (x=treatment, y=mean), color="black", size=5) + xlab("")
+Cherry.plot.a
+```
+
+### Cherry Tomatoes Yellow 
+```{r}
+#paired t-tests
+TY<-filter (df.summary, str_detect(plant, 'TY')) %>% filter ( str_detect(Year, '2019')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+TY.summary<- TY %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; TY.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=TY )
+wilcox.test (Fruit_total~ treatment, paired=T, data=TY )
+  
+TY.plot.a= ggplot (TY, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=TY$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.04") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+ scale_color_manual(values = group.colors) +
+geom_point (data=TY.summary, aes (x=treatment, y=mean), color="black", size=5) + xlab("")
+TY.plot.a
+```
+
+### Crook Neck Squash
+```{r}
+#paired t-tests
+Squash<-filter (df.summary, str_detect(plant, 'Squash')) %>% filter ( str_detect(Year, '2018')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+Squash.summary<- Squash %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; Squash.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Squash )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Squash )
+  
+Squash.plot= ggplot (Squash, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Squash$location.ID, color="lightgrey")+ 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Squash.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Squash.plot
+```
+
+### Eggplant
+```{r}
+#paired t-tests
+Egg<-filter (df.summary, str_detect(plant, 'Eggplant')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+Egg.summary<- Egg %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Egg.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Egg )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Egg )
+  
+Egg.plot.a= ggplot (Egg, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Egg$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.03") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+ xlab("") + scale_color_manual(values = group.colors) +
+geom_point (data=Egg.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Egg.plot.a
+```
+
+### Hot Chili Peppers Tabasco
+```{r}
+#paired t-tests
+Tabasco<-filter (df.summary, str_detect(plant, 'Tabasco')) %>%filter ( str_detect(Year, '2019')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+Tabasco.summary<- Tabasco %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Tabasco.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Tabasco )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Tabasco )
+  
+Tabasco.plot= ggplot (Tabasco, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Tabasco$location.ID, color="lightgrey")+ 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Tabasco.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Tabasco.plot
+```
+
+### Masakato Tomato
+```{r}
+#paired t-tests
+TMH<-filter (df.summary, str_detect(plant, 'TMH')) %>%filter ( str_detect(Year, '2019')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+TMH.summary<- TMH %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; TMH.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=TMH )
+wilcox.test (Fruit_total~ treatment, paired=T, data=TMH )
+  
+TMH.plot= ggplot (TMH, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=TMH$location.ID, color="lightgrey")+ 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=TMH.summary, aes (x=treatment, y=mean), color="black", size=5) 
+TMH.plot
+```
+
+### Pickling Cukes
+```{r}
+#paired t-tests
+Pickles<-filter (df.summary, str_detect(plant, 'Pickling')) %>% filter ( str_detect(Year, '2018')) %>% #filter out the 2019 observations
+   group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+
+Pickles.summary<- Pickles %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Pickles.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Pickles )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Pickles )
+  
+Pickles.plot= ggplot (Pickles, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Pickles$location.ID, color="lightgrey")+ 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Pickles.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Pickles.plot
+
+```
+
+### Pumpkins not completed due to insufficient data 
+
+### Roma Tomato
+```{r}
+#paired t-tests
+Roma<-filter (df.summary, str_detect(plant, 'Roma')) %>% filter ( str_detect(Year, '2018')) %>% #filter out the 2019 observations
+   group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+#write.csv(Roma, "Roma.csv")
+
+Roma.summary<- Roma %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Roma.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Roma )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Roma )
+  
+Roma.plot.a= ggplot (Roma, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Roma$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.01") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+ scale_color_manual(values=group.colors) +
+geom_point (data=Roma.summary, aes (x=treatment, y=mean), color="black", size=5) + xlab("")
+Roma.plot.a
+```
+
+### Salad Cucumbers not completed due to insufficient data 
+
+### Snap Peas
+```{r}
+#paired t-tests
+Snap<-filter (df.summary, str_detect(plant, 'Snap')) %>% filter ( str_detect(Year, '2018')) %>% #filter out the 2019 observations
+   group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+
+Snap.summary<- Snap %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) 
+
+Snap.summary
+t.test(Fruit_total~ treatment, paired=T, data=Snap)
+wilcox.test (Fruit_total~ treatment, paired=T, data=Snap )
+  
+Snap.plot= ggplot (Snap, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Snap$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.025") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Snap.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Snap.plot
+```
+
+### String Beans
+```{r}
+#paired t-tests
+String<-filter (df.summary, str_detect(plant, 'String')) %>% filter ( str_detect(Year, '2018')) %>% #filter out the 2019 observations
+   group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+
+String.summary<- String %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) 
+
+String.summary
+t.test(Fruit_total~ treatment, paired=T, data=String)
+wilcox.test (Fruit_total~ treatment, paired=T, data=String )
+  
+String.plot= ggplot (String, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=String$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=String.summary, aes (x=treatment, y=mean), color="black", size=5) 
+String.plot
+```
+
+### Sugarbaby Watermelons not completed due to insufficient data 
+
+## t-test comparison of fruit weight  
+
+```{r}
+a.3=raw.data %>% mutate_if(is.numeric, replace_na, 0)  %>% 
+  select (1,3, 34:97, 114:145)%>%
+pivot_longer(cols = -c(location.ID, Year), names_to ='plant', values_to = 'weight') %>%
+  mutate_if(is.numeric, replace_na, 0) %>% 
+  filter(str_detect(plant, "Weight")) %>%
+  filter(str_detect(plant, "_Control"))%>%
+  group_by(location.ID, Year, plant) %>%
+  summarise (Fruit_total=sum (weight))  %>%
+  separate(plant, c("plant", "treatment"), "_", extra = "merge")
+
+b.3=raw.data %>% mutate_if(is.numeric, replace_na, 0)  %>% 
+  select (1,3, 34:97, 114:145) %>%
+pivot_longer(cols = -c(location.ID, Year), names_to ='plant', values_to = 'weight') %>%
+  mutate_if(is.numeric, replace_na, 0) %>% 
+  filter(str_detect(plant, "Weight")) %>%
+  filter(str_detect(plant, "_Covered")) %>%
+  group_by(location.ID, Year, plant) %>%
+  summarise (Fruit_total=sum (weight))  %>%
+  separate(plant, c("plant", "treatment"), "_", extra = "merge")
+
+df.summary<- rbind (a.3,b.3)
+df.summary$treatment<- as.factor (df.summary$treatment)
+levels (df.summary$treatment)
+df.summary$plant<-as.factor (df.summary$plant)
+df.summary<- as.data.frame(df.summary)
+
+#total weight by plant 
+df.total<- df.summary %>% group_by(plant) %>%
+  summarize (total.weight=sum(Fruit_total))
+pander (df.total, split.cell = 80, split.table = Inf)
+```
+### Anaheim Peppers
+```{r}
+#paired t-tests
+Anaheim<-filter (df.summary, str_detect(plant, 'Anaheim')) %>% filter ( str_detect(Year, '2019') )%>% #filter out the 2019 observations 
+  group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0) #omit observations where both the control and covered values= 0
+
+Anaheim.summary<- Anaheim %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) #create a summary that shows the mean value 
+Anaheim.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Anaheim )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Anaheim )
+  
+Anamheim.plot.b= ggplot (Anaheim, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Anaheim$location.ID, color="lightgrey") + 
+  ggtitle("p<0.001") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Weight per site (grams)") + xlab("") +
+geom_point (data=Anaheim.summary, aes (x=treatment, y=mean), color="black", size=5) +
+  scale_color_manual(values=group.colors)
+
+Anamheim.plot.b
+```
+
+### Bell Peppers not completed due to low observations
+
+### Big Boy Tomato 
+```{r}
+#paired t-tests
+BigBoy<-filter (df.summary, str_detect(plant, 'Big')) %>% filter ( str_detect(Year, '2018')) %>% 
+  #filter out the 2019 observations
+    group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0) #omit observations where both the control and covered values= 0
+#write.csv(BigBoy, "BigBoy.csv")
+
+BigBoy.summary<- BigBoy %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total));BigBoy.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=BigBoy )
+wilcox.test (Fruit_total~ treatment, paired=T, data=BigBoy )
+  
+BigBoy.plot= ggplot (BigBoy, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=BigBoy$location.ID, color="lightgrey") + 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site") +
+geom_point (data=BigBoy.summary, aes (x=treatment, y=mean), color="black", size=5) 
+BigBoy.plot
+```
+
+### Butternut
+```{r}
+#paired t-tests
+Butternut<-filter (df.summary, str_detect(plant, 'Butter.Nut')) %>% filter ( str_detect(Year, '2018')) %>%     group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0) #filter out the 2019 observations and omit 0 observations
+
+Butternut.summary<- Butternut %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; Butternut.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Butternut )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Butternut )
+  
+Butternut.plot= ggplot (Butternut, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Butternut$location.ID, color="lightgrey") + 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site") +
+geom_point (data=Butternut.summary, aes (x=treatment, y=mean), color="black", size=5) 
+
+Butternut.plot
+```
+
+### Caballero
+```{r}
+#paired t-tests
+Caballero<-filter (df.summary, str_detect(plant, 'Caballero')) %>% filter ( str_detect(Year, '2019')) %>% 
+  #filter out the 2019 observations
+      group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+
+Caballero.summary<- Caballero %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Caballero.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Caballero )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Caballero )
+  
+Caballero.plot= ggplot (Caballero, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Caballero$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.01") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Caballero.summary, aes (x=treatment, y=mean), color="black", size=5) 
+
+Caballero.plot
+```
+
+### CA Wonder
+```{r}
+#paired t-tests
+CA_Bell2<-filter (df.summary, str_detect(plant, "CA.Wonder.Peppers.")) %>% filter ( str_detect(Year, '2019')) %>% 
+  #filter out the 2019 observations
+      group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+
+CA_Bell2.summary<- CA_Bell2 %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); CA_Bell2.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=CA_Bell2 )
+wilcox.test (Fruit_total~ treatment, paired=T, data=CA_Bell2 )
+  
+CABell.plot.b= ggplot (CA_Bell2, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=CA_Bell2$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.04") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Weight per site (grams)") + scale_color_manual(values=group.colors) +
+geom_point (data=CA_Bell2.summary, aes (x=treatment, y=mean), color="black", size=5) 
+
+CABell.plot.b
+
+```
+
+### Red Cherry Tomato
+```{r}
+#paired t-tests
+Cherry<-filter (df.summary, str_detect(plant, 'Cherry.Tomato.Weight')) %>% filter ( str_detect(Year, '2018')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+#write.csv(Cherry, "Cherry_Tomato.csv")
+
+Cherry.summary<- Cherry %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; Cherry.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Cherry )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Cherry )
+  
+Cherry.plot.b= ggplot (Cherry, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Cherry$location.ID, color="lightgrey")+ 
+  ggtitle("p<0.01") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Weight per site (grams)")+ scale_color_manual(values = group.colors) +
+geom_point (data=Cherry.summary, aes (x=treatment, y=mean), color="black", size=5) + xlab("")
+Cherry.plot.b
+```
+
+### TY Cherry Tomato Yellow
+```{r}
+#paired t-tests
+TY<-filter (df.summary, str_detect(plant, 'TY')) %>% filter ( str_detect(Year, '2019')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+TY.summary<- TY %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; TY.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=TY )
+wilcox.test (Fruit_total~ treatment, paired=T, data=TY )
+  
+TY.plot.b= ggplot (TY, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=TY$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.01") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Weight per site (grams)")+ scale_color_manual(values = group.colors) + 
+geom_point (data=TY.summary, aes (x=treatment, y=mean), color="black", size=5) + xlab("")
+TY.plot.b
+
+```
+
+### Crook neck Squash
+```{r}
+#paired t-tests
+Squash<-filter (df.summary, str_detect(plant, 'Squash')) %>% filter ( str_detect(Year, '2018')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+Squash.summary<- Squash %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; Squash.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Squash )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Squash )
+  
+Squash.plot= ggplot (Squash, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Squash$location.ID, color="lightgrey")+ 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Squash.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Squash.plot
+```
+
+### Eggplant
+```{r}
+#paired t-tests
+Egg<-filter (df.summary, str_detect(plant, 'Eggplant')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+Egg.summary<- Egg %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Egg.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Egg )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Egg )
+  
+Egg.plot.b= ggplot (Egg, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Egg$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.07") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+xlab("") + scale_color_manual(values=group.colors) + 
+geom_point (data=Egg.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Egg.plot.b
+```
+
+### Tabasco Hot Chili Peppers
+```{r}
+#paired t-tests
+Tabasco<-filter (df.summary, str_detect(plant, 'Tabasco')) %>%filter ( str_detect(Year, '2019')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+
+Tabasco.summary<- Tabasco %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Tabasco.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Tabasco )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Tabasco )
+  
+Tabasco.plot= ggplot (Tabasco, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Tabasco$location.ID, color="lightgrey")+ 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Tabasco.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Tabasco.plot
+```
+
+### Masakato Tomato
+```{r}
+#paired t-tests
+TMH<-filter (df.summary, str_detect(plant, 'TMH')) %>%filter ( str_detect(Year, '2019')) %>% 
+        group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)#filter out the 2019 observations
+#write.csv(TMH, "Masakato.csv")
+
+TMH.summary<- TMH %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) ; TMH.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=TMH )
+wilcox.test (Fruit_total~ treatment, paired=T, data=TMH )
+  
+TMH.plot= ggplot (TMH, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=TMH$location.ID, color="lightgrey")+ 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=TMH.summary, aes (x=treatment, y=mean), color="black", size=5) 
+TMH.plot
+```
+
+### Pickling Cukes
+```{r}
+#paired t-tests
+Pickles<-filter (df.summary, str_detect(plant, 'Picking')) %>% filter ( str_detect(Year, '2018')) %>% #filter out the 2019 observations
+   group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+
+Pickles.summary<- Pickles %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Pickles.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Pickles )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Pickles )
+  
+Pickles.plot= ggplot (Pickles, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Pickles$location.ID, color="lightgrey")+ 
+  ggtitle("p>0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Pickles.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Pickles.plot
+```
+
+### Pumpkins not completed due to insufficient data 
+
+### Roma Tomato
+```{r}
+#paired t-tests
+Roma<-filter (df.summary, str_detect(plant, 'Roma')) %>% filter ( str_detect(Year, '2018')) %>% #filter out the 2019 observations
+   group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+
+Roma.summary<- Roma %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); Roma.summary
+
+t.test(Fruit_total~ treatment, paired=T, data=Roma )
+wilcox.test (Fruit_total~ treatment, paired=T, data=Roma )
+  
+Roma.plot.b= ggplot (Roma, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Roma$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.05") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Weight per site (grams)")+scale_color_manual(values = group.colors) +
+geom_point (data=Roma.summary, aes (x=treatment, y=mean), color="black", size=5) + xlab("")
+Roma.plot.b
+```
+
+### Salad Cucumbers not completed due to insufficient data
+
+### Snap peas
+```{r}
+#paired t-tests
+Snap<-filter (df.summary, str_detect(plant, 'Snap')) %>% filter ( str_detect(Year, '2018')) %>% #filter out the 2019 observations
+   group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+#write.csv(Snap, "Snap.csv")
+
+Snap.summary<- Snap %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)) 
+
+Snap.summary
+t.test(Fruit_total~ treatment, paired=T, data=Snap)
+wilcox.test (Fruit_total~ treatment, paired=T, data=Snap )
+  
+Snap.plot= ggplot (Snap, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=Snap$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.03") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=Snap.summary, aes (x=treatment, y=mean), color="black", size=5) 
+Snap.plot
+```
+
+### String Beans
+```{r}
+#paired t-tests
+String<-filter (df.summary, str_detect(plant, 'String')) %>% filter ( str_detect(Year, '2018')) %>% #filter out the 2019 observations
+   group_by(location.ID) %>%
+  filter(sum(Fruit_total) != 0)
+#write.csv(String, "String.csv")
+
+String.summary<- String %>% group_by(treatment) %>% 
+  summarize (mean=mean (Fruit_total)); String.summary
+
+
+String.summary
+t.test(Fruit_total~ treatment, paired=T, data=String)
+wilcox.test (Fruit_total~ treatment, paired=T, data=String )
+  
+String.plot= ggplot (String, aes (x=treatment, y=Fruit_total,  color=treatment)) + geom_point() + geom_line(group=String$location.ID, color="lightgrey")+ 
+  ggtitle("p=0.02") + theme_bw() + theme (legend.position = "none") + 
+  ylab("Total Fruit Produced per site")+
+geom_point (data=String.summary, aes (x=treatment, y=mean), color="black", size=5) 
+String.plot
+```
+
+### Sugarbaby Watermelons not completed due to insufficient data 
+
+## Linear models- relationships between bee richness/abundance and fruit production
+
+### Anaheim Peppers 
+```{r}
+
+ap<-filter (abund.data, Vegtable=="Anaheim  Peppers   " ) 
+
+ap.plot.rich=ggplot(ap, aes(x=Bee.Diversity, y=Fruit_total, color=treatment, 
+                       linetype=Sig.rich)) + 
+  geom_point()+ geom_smooth(method="lm", se=F) + 
+  ylab("Total Fruits Produced") + xlab("Bee Richness") + theme_bw() + 
+  scale_color_manual (values= c("black", "grey")) + annotate("text", label="A", x=2, y=17) +
+  theme(legend.position = "none"); ap.plot.rich
+
+ap.plot.abund=ggplot(ap, aes(x=Bee.Abundance, y=Fruit_total, color=treatment, 
+                       linetype=Sig.abund)) + 
+  geom_point()+ geom_smooth(method="lm", se=F) + 
+  ylab("Total Fruits Produced") + xlab("Bee Abundance") + theme_bw() + 
+  scale_color_manual (values= c("black", "grey")) + scale_linetype_manual (values="dashed") +
+  annotate("text", label="A", x=2, y=17) + 
+  theme(legend.position = "none"); ap.plot.abund
+
+ap.control= filter (ap, treatment=="Control")
+ap.covered= filter (ap, treatment=="Covered")
+ap.lm<- lm (Fruit_total ~ Bee.Diversity, data=ap.control); summary (ap.lm)
+ap.lm2<- lm (Fruit_total ~ Bee.Diversity, data=ap.covered); summary (ap.lm2)
+
+#abundance 
+ap.lm3<- lm (Fruit_total ~ Bee.Abundance, data=ap.control); summary (ap.lm3)
+ap.lm4<- lm (Fruit_total ~ Bee.Abundance, data=ap.covered); summary (ap.lm4)
+```
+
+```{r}
+#CA Wonder Peppers 
+cawp<-filter (abund.data, Vegtable=="CA  Wonder  Peppers   " ) 
+
+cawp.plot=ggplot(cawp, aes(x=Bee.Diversity, y=Fruit_total, color=treatment)) + 
+  geom_point()+ geom_smooth(method="lm"); cawp.plot
+
+cawp.control= filter (cawp, treatment=="Control")
+cawp.covered= filter (cawp, treatment=="Covered")
+cawp.lm<- lm (Fruit_total ~ Bee.Diversity, data=cawp.control); summary (cawp.lm)
+cawp.lm2<- lm (Fruit_total ~ Bee.Diversity, data=cawp.covered); summary (cawp.lm2)
+
+#abundance 
+cawp.lm3<- lm (Fruit_total ~ Bee.Abundance, data=cawp.control); summary (cawp.lm3)
+cawp.lm4<- lm (Fruit_total ~ Bee.Abundance, data=cawp.covered); summary (cawp.lm4)
+```
+
+```{r}
+#Habanero Peppers 
+hp<-filter (abund.data, Vegtable=="Caballero  or  Habanero  Peppers   ") 
+
+hp.plot=ggplot(hp, aes(x=Bee.Diversity, y=Fruit_total, color=treatment)) + 
+  geom_point()+ geom_smooth(method="lm"); cawp.plot
+
+hp.control= filter (hp, treatment=="Control")
+hp.covered= filter (hp, treatment=="Covered")
+hp.lm<- lm (Fruit_total ~ Bee.Diversity, data=hp.control); summary (hp.lm)
+hp.lm2<- lm (Fruit_total ~ Bee.Diversity, data=hp.covered); summary (hp.lm2)
+```
+
+```{r}
+#Cherry Tomato
+ct<-filter (abund.data, Vegtable=="Cherry  Tomato   ") 
+
+ct.plot=ggplot(ct, aes(x=Bee.Diversity, y=Fruit_total, color=treatment)) + 
+  geom_point()+ geom_smooth(method="lm"); ct.plot
+
+ct.control= filter (ct, treatment=="Control")
+ct.covered= filter (ct, treatment=="Covered")
+ct.lm<- lm (Fruit_total ~ Bee.Diversity, data=ct.control); summary (ct.lm)
+ct.lm2<- lm (Fruit_total ~ Bee.Diversity, data=ct.covered); summary (ct.lm2)
+
+ct.lm3<- lm (Fruit_total ~ Bee.Abundance, data=ct.control); summary (ct.lm3)
+ct.lm4<- lm (Fruit_total ~ Bee.Abundance, data=ct.covered); summary (ct.lm4)
+```
+
+```{r}
+#Cherry Tomato
+cty<-filter (abund.data, Vegtable=="Cherry  Tomato    TY     ") 
+
+cty.plot=ggplot(cty, aes(x=Bee.Diversity, y=Fruit_total, color=treatment)) + 
+  geom_point()+ geom_smooth(method="lm"); cty.plot
+
+cty.control= filter (cty, treatment=="Control")
+cty.covered= filter (cty, treatment=="Covered")
+cty.lm<- lm (Fruit_total ~ Bee.Diversity, data=cty.control); summary (cty.lm)
+cty.lm2<- lm (Fruit_total ~ Bee.Diversity, data=cty.covered); summary (cty.lm2)
+
+cty.lm3<- lm (Fruit_total ~ Bee.Abundance, data=cty.control); summary (cty.lm3)
+cty.lm4<- lm (Fruit_total ~ Bee.Abundance, data=cty.covered); summary (cty.lm4)
+```
+
+```{r}
+#eggpltant
+ep<-filter (abund.data, Vegtable=="Eggplant   ") 
+
+ep.plot=ggplot(ep, aes(x=Bee.Diversity, y=Fruit_total, color=treatment)) + 
+  geom_point()+ geom_smooth(method="lm"); ep.plot
+
+ep.control= filter (ep, treatment=="Control")
+ep.covered= filter (ep, treatment=="Covered")
+ep.lm<- lm (Fruit_total ~ Bee.Diversity, data=ep.control); summary (ep.lm)
+ep.lm2<- lm (Fruit_total ~ Bee.Diversity, data=ep.covered); summary (ep.lm2)
+ep.lm3<- lm (Fruit_total ~ Bee.Abundance, data=ep.control); summary (ep.lm3)
+ep.lm4<- lm (Fruit_total ~ Bee.Abundance, data=ep.covered); summary (ep.lm4)
+```
+
+```{r}
+#roma tomato
+rt<-filter (abund.data, Vegtable=="Roma  Tomatoes   " ) 
+
+rt.plot=ggplot(rt, aes(x=Bee.Diversity, y=Fruit_total, color=treatment)) + 
+  geom_point()+ geom_smooth(method="lm"); rt.plot
+
+rt.control= filter (rt, treatment=="Control")
+rt.covered= filter (rt, treatment=="Covered")
+rt.lm<- lm (Fruit_total ~ Bee.Diversity, data=rt.control); summary (rt.lm)
+rt.lm2<- lm (Fruit_total ~ Bee.Diversity, data=rt.covered); summary (rt.lm2)
+rt.lm3<- lm (Fruit_total ~ Bee.Abundance, data=rt.control); summary (rt.lm3)
+rt.lm4<- lm (Fruit_total ~ Bee.Abundance, data=rt.covered); summary (rt.lm4)
+```
+
+```{r}
+#peas
+pea<-filter (abund.data, Vegtable=="Snap  Peas   " )
+
+pea.plot=ggplot(pea, aes(x=Bee.Diversity, y=Fruit_total, color=treatment)) + 
+  geom_point()+ geom_smooth(method="lm"); pea.plot
+
+pea.control= filter (pea, treatment=="Control")
+pea.covered= filter (pea, treatment=="Covered")
+pea.lm<- lm (Fruit_total ~ Bee.Diversity, data=pea.control); summary (pea.lm)
+pea.lm2<- lm (Fruit_total ~ Bee.Diversity, data=pea.covered); summary (pea.lm2)
+pea.lm3<- lm (Fruit_total ~ Bee.Abundance, data=pea.control); summary (pea.lm3)
+pea.lm4<- lm (Fruit_total ~ Bee.Abundance, data=pea.covered); summary (pea.lm4)
+```
+
+```{r}
+#bean
+bean<-filter (abund.data, Vegtable=="String  Bean   "    )
+
+pea.plot=ggplot(pea, aes(x=Bee.Diversity, y=Fruit_total, color=treatment)) + 
+  geom_point()+ geom_smooth(method="lm"); pea.plot
+
+bean.control= filter (bean, treatment=="Control")
+bean.covered= filter (bean, treatment=="Covered")
+bean.lm<- lm (Fruit_total ~ Bee.Diversity, data=bean.control); summary (bean.lm)
+bean.lm2<- lm (Fruit_total ~ Bee.Diversity, data=bean.covered); summary (bean.lm2)
+bean.lm3<- lm (Fruit_total ~ Bee.Abundance, data=bean.control); summary (bean.lm3)
+bean.lm4<- lm (Fruit_total ~ Bee.Abundance, data=bean.covered); summary (bean.lm4)
+
+```

@@ -1,0 +1,3 @@
+Variable,Definition
+Site,Corresponds to citizen science location ID 
+Species Abundances,Columns 2-23 represaent the abundances of each species (name is listed on the header) at each site
